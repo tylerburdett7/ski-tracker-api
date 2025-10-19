@@ -1,0 +1,45 @@
+@baseUrl = http://localhost:3000/api/skiDays
+@lastCreatedId = {{lastCreatedId}}
+
+### 1️⃣ Get all ski days
+GET {{baseUrl}}
+Content-Type: application/json
+
+
+### 2️⃣ Create a new ski day
+# @name createSkiDay
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+  "date": "2025-01-15",
+  "location": "Park City",
+  "runs": 12,
+  "topSpeed": 49,
+  "verticalFeet": 7200,
+  "activityType": "Skiing",
+  "notes": "Sunny morning, icy later in the day."
+}
+
+### 3️⃣ Save the created ski day's ID for later requests
+@lastCreatedId = {{createSkiDay.response.body._id}}
+
+
+### 4️⃣ Get that newly created ski day
+GET {{baseUrl}}/{{lastCreatedId}}
+Content-Type: application/json
+
+
+### 5️⃣ Update the ski day
+PUT {{baseUrl}}/{{lastCreatedId}}
+Content-Type: application/json
+
+{
+  "runs": 15,
+  "notes": "Updated: added a few more afternoon runs."
+}
+
+
+### 6️⃣ Delete the ski day
+DELETE {{baseUrl}}/{{lastCreatedId}}
+Content-Type: application/json
