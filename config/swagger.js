@@ -11,8 +11,8 @@ const options = {
     },
     servers: [
       {
-        url: "http://localhost:3000",
-        description: "Local server",
+        url: "https://ski-tracker-api.onrender.com/",
+        description: "Render",
       },
     ],
     components: {
