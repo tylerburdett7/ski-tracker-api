@@ -34,13 +34,24 @@ export const createSkiDay = async (req, res) => {
 // Update ski day
 export const updateSkiDay = async (req, res) => {
   try {
-    const updatedSkiDay = await SkiDay.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!updatedSkiDay) return res.status(404).json({ message: "Ski day not found" });
+    delete req.body._id; // prevent accidental overwrite
+    const updatedSkiDay = await SkiDay.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedSkiDay) {
+      return res.status(404).json({ message: "Ski day not found" });
+    }
+
     res.json(updatedSkiDay);
   } catch (err) {
-    res.status(400).json({ message: "Invalid ID format" });
+    console.error("Error updating ski day:", err);
+    res.status(400).json({ message: err.message });
   }
 };
+
 
 // Delete ski day
 export const deleteSkiDay = async (req, res) => {
