@@ -1,4 +1,4 @@
-@baseUrl = http://localhost:3000/api/skiDays
+@baseUrl = https://ski-tracker-api.onrender.com/api/skiDays
 @lastCreatedId = {{lastCreatedId}}
 
 ### 1️⃣ Get all ski days
