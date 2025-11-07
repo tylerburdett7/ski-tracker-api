@@ -6,6 +6,7 @@ import {
   updateSkiDay,
   deleteSkiDay,
 } from "../controllers/skiDayController.js";
+import { checkAuth } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
@@ -63,8 +64,10 @@ router.get("/:id", getSkiDayById);
  * @swagger
  * /api/skiDays:
  *   post:
- *     summary: Create a new ski day
+ *     summary: Create a new ski day (requires login)
  *     tags: [SkiDays]
+ *     security:
+ *       - googleAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -80,15 +83,19 @@ router.get("/:id", getSkiDayById);
  *               $ref: '#/components/schemas/SkiDay'
  *       400:
  *         description: Invalid data provided
+ *       401:
+ *         description: Authentication required
  */
-router.post("/", createSkiDay);
+router.post("/", checkAuth, createSkiDay);
 
 /**
  * @swagger
  * /api/skiDays/{id}:
  *   put:
- *     summary: Update a ski day
+ *     summary: Update a ski day (requires login)
  *     tags: [SkiDays]
+ *     security:
+ *       - googleAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -111,15 +118,19 @@ router.post("/", createSkiDay);
  *               $ref: '#/components/schemas/SkiDay'
  *       404:
  *         description: Ski day not found
+ *       401:
+ *         description: Authentication required
  */
-router.put("/:id", updateSkiDay);
+router.put("/:id", checkAuth, updateSkiDay);
 
 /**
  * @swagger
  * /api/skiDays/{id}:
  *   delete:
- *     summary: Delete a ski day
+ *     summary: Delete a ski day (requires login)
  *     tags: [SkiDays]
+ *     security:
+ *       - googleAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -132,7 +143,9 @@ router.put("/:id", updateSkiDay);
  *         description: Ski day deleted successfully
  *       404:
  *         description: Ski day not found
+ *       401:
+ *         description: Authentication required
  */
-router.delete("/:id", deleteSkiDay);
+router.delete("/:id", checkAuth, deleteSkiDay);
 
 export default router;
