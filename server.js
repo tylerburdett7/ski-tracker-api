@@ -2,21 +2,22 @@ import dotenv from "dotenv";
 dotenv.config();
 import express from "express";
 import mongoose from "mongoose";
-import skiDayRoutes from "./routes/skiDayRoutes.js";
-import { swaggerDocs } from "./config/swagger.js";
 import session from "express-session";
 import passport from "./config/passport.js";
-
-
+import skiDayRoutes from "./routes/skiDayRoutes.js";
+import { swaggerDocs } from "./config/swagger.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// 🧱 Middleware
 app.use(express.static("public"));
+app.use(express.json()); // ✅ Parse JSON bodies
 
-
+// 🧠 Session + Passport setup
 app.use(
   session({
-    secret: process.env.SESSION_SECRET,
+    secret: process.env.SESSION_SECRET || "keyboardcat",
     resave: false,
     saveUninitialized: false,
   })
@@ -25,20 +26,15 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-
-// Middleware
-app.use(express.json());
-
-// Routes
+// 🗺️ Routes
 app.use("/api/skiDays", skiDayRoutes);
 
-// Google OAuth login route
+// Google OAuth routes
 app.get(
   "/auth/google",
   passport.authenticate("google", { scope: ["profile", "email"] })
 );
 
-// Google OAuth callback route
 app.get(
   "/auth/google/callback",
   passport.authenticate("google", {
@@ -48,7 +44,7 @@ app.get(
 );
 
 app.get("/auth/success", (req, res) => {
-  res.send(`Welcome ${req.user.displayName}!`);
+  res.send(`Welcome ${req.user ? req.user.displayName : "Guest"}!`);
 });
 
 app.get("/auth/failure", (req, res) => {
@@ -62,18 +58,28 @@ app.get("/logout", (req, res, next) => {
   });
 });
 
+// 🧾 Swagger docs
+swaggerDocs(app);
 
-// Swagger docs
-swaggerDocs(app); // ✅ sets up /api-docs automatically
+// 🧩 MongoDB connection + Server startup
+const MONGODB_URI = process.env.MONGODB_URI;
+if (!MONGODB_URI) {
+  console.error("❌ Missing MONGODB_URI in .env file");
+  process.exit(1);
+}
 
-console.log("Loaded MONGODB_URI:", process.env.MONGODB_URI);
-
-// MongoDB connection
 mongoose
-  .connect(process.env.MONGODB_URI)
+  .connect(MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
   .then(() => {
     console.log("✅ Connected to MongoDB");
-    console.log(`🚀 Server running at: http://localhost:${PORT}`);
-    app.listen(PORT);
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running at http://localhost:${PORT}`);
+    });
   })
-  .catch((error) => console.error("MongoDB connection failed:", error));
+  .catch(err => {
+    console.error("❌ MongoDB connection failed:", err);
+    process.exit(1);
+  });
